@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".fragments.RMP.FragmentRMPLab1">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Для ввода двоичных чисел нажимайте на цифры" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Первое число"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb11"
+            style="@style/StyleToggleButton" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb12"
+            style="@style/StyleToggleButton" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb13"
+            style="@style/StyleToggleButton" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb14"
+            style="@style/StyleToggleButton" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Второе число"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb21"
+            style="@style/StyleToggleButton" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb22"
+            style="@style/StyleToggleButton" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb23"
+            style="@style/StyleToggleButton" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb24"
+            style="@style/StyleToggleButton" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/colorAccent" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Ответ"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb31"
+            style="@style/StyleToggleButton"
+            android:enabled="false"
+            android:textColor="@color/colorAccent"
+            android:visibility="gone" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb32"
+            style="@style/StyleToggleButton"
+            android:enabled="false"
+            android:textColor="@color/colorAccent" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb33"
+            style="@style/StyleToggleButton"
+            android:enabled="false"
+            android:textColor="@color/colorAccent" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb34"
+            style="@style/StyleToggleButton"
+            android:enabled="false"
+            android:textColor="@color/colorAccent" />
+
+        <ToggleButton
+            android:id="@+id/rmp_lab1_tb35"
+            style="@style/StyleToggleButton"
+            android:enabled="false"
+            android:textColor="@color/colorAccent" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/rmp_lab1_buttonSum"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="+"
+            android:textColor="@color/colorDefault"
+            android:textSize="25sp" />
+
+        <Button
+            android:id="@+id/rmp_lab1_buttonSLeft"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="@string/leftQuotes"
+            android:textColor="@color/colorDefault"
+            android:textSize="25sp" />
+
+        <Button
+            android:id="@+id/rmp_lab1_buttonSRight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="@string/rightQuotes"
+            android:textColor="@color/colorDefault"
+            android:textSize="25sp" />
+
+        <Button
+            android:id="@+id/rmp_lab1_buttonInvers"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="@string/Invers"
+            android:textColor="@color/colorDefault"
+            android:textSize="25sp" />
+
+        <Button
+            android:id="@+id/rmp_lab1_buttonXOR"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="@string/Conj"
+            android:textColor="@color/colorDefault"
+            android:textSize="25sp" />
+    </LinearLayout>
+</LinearLayout>

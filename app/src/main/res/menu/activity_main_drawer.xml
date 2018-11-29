@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item android:title="@string/RMP">
+        <menu>
+            <item
+                android:id="@+id/nav_rmp_lab1"
+                android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:title="@string/Lab1" />
+            <item
+                android:id="@+id/nav_rmp_lab2"
+                android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:title="@string/Lab2" />
+            <item
+                android:id="@+id/nav_rmp_lab3"
+                android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:title="@string/Lab3" />
+            <item
+                android:id="@+id/nav_rmp_lab45"
+                android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:title="@string/Lab45" />
+        </menu>
+    </item>
+    <item android:title="@string/PRP">
+        <menu>
+            <item
+                android:id="@+id/nav_prp_lab1"
+                android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:title="@string/Lab1" />
+            <item
+                android:id="@+id/nav_prp_lab3"
+                android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:title="@string/Lab3" />
+        </menu>
+    </item>
+</menu>

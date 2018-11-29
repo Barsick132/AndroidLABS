@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.PRP.FragmentPRPLab1">
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/prp_lab1_fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add_white_24dp"
+        app:fabSize="normal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/prp_lab1_CountProc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/CountProc" />
+
+        <SeekBar
+            android:id="@+id/prp_lab1_SeekBarProc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/prp_lab1_Radius"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/Radius" />
+
+        <SeekBar
+            android:id="@+id/prp_lab1_SeekBarRadius"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="3" />
+
+        <ProgressBar
+            android:id="@+id/prp_lab1_progressBarHor"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/Before"
+            android:textSize="16sp"
+            tools:targetApi="o" />
+
+        <ImageView
+            android:id="@+id/prp_lab1_ImgView1"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            app:srcCompat="@android:drawable/ic_menu_report_image" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/After"
+            android:textSize="16sp"
+            tools:targetApi="o" />
+
+        <ImageView
+            android:id="@+id/prp_lab1_ImgView2"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            app:srcCompat="@android:drawable/ic_menu_report_image" />
+
+        <ProgressBar
+            android:id="@+id/prp_lab1_progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</RelativeLayout>

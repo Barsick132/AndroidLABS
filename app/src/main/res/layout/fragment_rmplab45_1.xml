@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
+
+                    <com.rengwuxian.materialedittext.MaterialEditText
+                        android:id="@+id/frg1URL"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/enterURL"
+                        app:met_baseColor="@color/colorPrimary"
+                        app:met_floatingLabel="highlight"
+                        app:met_floatingLabelAlwaysShown="true"
+                        app:met_floatingLabelText="* URL подозрительного ресурса"
+                        app:met_primaryColor="@color/colorBlack" />
+
+                    <com.rengwuxian.materialedittext.MaterialMultiAutoCompleteTextView
+                        android:id="@+id/frg1Comment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/enterComment"
+                        app:met_baseColor="@color/colorPrimary"
+                        app:met_floatingLabel="highlight"
+                        app:met_floatingLabelAlwaysShown="true"
+                        app:met_floatingLabelText="Комментарий"
+                        app:met_primaryColor="@color/colorBlack" />
+
+                    <CheckBox
+                        android:id="@+id/frg1CheckContactData"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/enterContactData" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/frg1ContactData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:padding="16dp"
+                android:visibility="gone">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
+
+                    <com.rengwuxian.materialedittext.MaterialEditText
+                        android:id="@+id/frg1FullName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/ic_person_primary_24dp"
+                        android:drawableTint="@color/colorPrimary"
+                        android:drawablePadding="10dp"
+                        android:hint="@string/enterFullName"
+                        app:met_baseColor="@color/colorPrimary"
+                        app:met_floatingLabel="highlight"
+                        app:met_floatingLabelText="ФИО"
+                        app:met_primaryColor="@color/colorBlack" />
+
+                    <com.rengwuxian.materialedittext.MaterialEditText
+                        android:id="@+id/frg1Email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/ic_email_primary_24dp"
+                        android:drawablePadding="10dp"
+                        android:hint="@string/enterEmail"
+                        app:met_baseColor="@color/colorPrimary"
+                        app:met_floatingLabel="highlight"
+                        app:met_floatingLabelText="Email"
+                        app:met_primaryColor="@color/colorBlack" />
+
+                    <com.rengwuxian.materialedittext.MaterialEditText
+                        android:id="@+id/frg1Phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/ic_phone_primary_24dp"
+                        android:drawableTint="@color/colorPrimary"
+                        android:drawablePadding="10dp"
+                        android:hint="@string/enterPhone"
+                        android:inputType="number"
+                        app:met_baseColor="@color/colorPrimary"
+                        app:met_floatingLabel="highlight"
+                        app:met_floatingLabelText="Телефон"
+                        app:met_helperText="Введите 10 цифр номера без +7.\nНапример: 9805001111"
+                        app:met_helperTextColor="@color/colorBlack"
+                        app:met_maxCharacters="10"
+                        app:met_minCharacters="10"
+                        app:met_primaryColor="@color/colorBlack" />
+
+                    <com.rengwuxian.materialedittext.MaterialEditText
+                        android:id="@+id/frg1Address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/ic_place_primary_24dp"
+                        android:drawableTint="@color/colorPrimary"
+                        android:drawablePadding="10dp"
+                        android:hint="@string/enterAddress"
+                        app:met_baseColor="@color/colorPrimary"
+                        app:met_floatingLabel="highlight"
+                        app:met_floatingLabelText="Адрес"
+                        app:met_primaryColor="@color/colorBlack" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <Button
+                android:id="@+id/frg1SendRequest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="-10dp"
+                android:layout_marginEnd="16dp"
+                android:backgroundTint="@color/colorAccent"
+                android:text="@string/sendRequest"
+                android:textAllCaps="false"
+                android:textColor="@color/colorDefault" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/frg1ProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorBlackout"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</FrameLayout>

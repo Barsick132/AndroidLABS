@@ -1,0 +1,55 @@
+<resources>
+    <string name="app_name">Android LABS</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="Lab1">Лабораторная работа №1</string>
+    <string name="RMP">Разработка мобильных приложений</string>
+    <string name="PRP">Паралл. и распред. прог.</string>
+    <string name="Before">До</string>
+    <string name="After">После</string>
+    <string name="CountProc">Количество ядер: 1</string>
+    <string name="Radius">Радиус размытия: 1</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="leftQuotes"><![CDATA[<<]]></string>
+    <string name="rightQuotes"><![CDATA[>>]]></string>
+    <string name="Invers">~</string>
+    <string name="Conj">^</string>
+    <string name="Lab2">Лабораторная работа №2</string>
+    <string name="send">Отправить</string>
+    <string name="enter_message">Введите сообщение</string>
+    <string name="Create_photo">Сделать фото</string>
+    <string name="Lab3">Лабораторная работа №3</string>
+    <string name="off">OFF</string>
+    <string name="on">ON</string>
+    <string name="not_connected">Not connected</string>
+    <string name="url">URL</string>
+    <string name="search">Search</string>
+    <string name="History">История</string>
+    <string name="Global">Главная</string>
+    <string name="enterAddress">Введите Адрес</string>
+    <string name="enterPhone">Введите Телефон</string>
+    <string name="enterEmail">Введите Email</string>
+    <string name="enterFullName">Введите ФИО</string>
+    <string name="enterComment">Введите комментарий</string>
+    <string name="enterURL">Введите URL</string>
+    <string name="enterContactData">Указать контактные данные</string>
+    <string name="sendRequest">Отправить заявку</string>
+    <string name="title_activity_main_bnav_bar">MainActivityBNavBar</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="Address">Адрес</string>
+    <string name="Phone">Телефон</string>
+    <string name="Email">Email</string>
+    <string name="FullName">ФИО</string>
+    <string name="Imgsource">Ссылка на изображение</string>
+    <string name="Comment">Комментарий</string>
+    <string name="NothingFound">Ничего не найдено :(</string>
+    <string name="Lab45">Лабораторные работы 4 и 5</string>
+</resources>
