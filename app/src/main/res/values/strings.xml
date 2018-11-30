@@ -52,4 +52,7 @@
     <string name="Comment">Комментарий</string>
     <string name="NothingFound">Ничего не найдено :(</string>
     <string name="Lab45">Лабораторные работы 4 и 5</string>
+    <string name="Subscriber">Подписчик</string>
+    <string name="Publisher">Издатель</string>
+    <string name="Upload_text">Загрузить текст</string>
 </resources>

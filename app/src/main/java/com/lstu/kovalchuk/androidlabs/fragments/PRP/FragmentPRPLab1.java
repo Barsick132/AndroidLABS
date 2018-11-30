@@ -27,14 +27,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lstu.kovalchuk.androidlabs.EchoClient;
 import com.lstu.kovalchuk.androidlabs.R;
-import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketAdapter;
-import com.neovisionaries.ws.client.WebSocketException;
-import com.neovisionaries.ws.client.WebSocketFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -49,7 +43,6 @@ public class FragmentPRPLab1 extends Fragment {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXT_STORAGE = 1;
     private boolean mExtStrgPermissionGranted = false;
     private static final String EXT_STRG = Manifest.permission.READ_EXTERNAL_STORAGE;
-    private FloatingActionButton fabAddImg;
     private ProgressBar progressBar;
     private ProgressBar progressBarHor;
     private ImageView imageView1;
@@ -72,7 +65,6 @@ public class FragmentPRPLab1 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_prplab1, container, false);
     }
 
@@ -86,16 +78,13 @@ public class FragmentPRPLab1 extends Fragment {
         imageView2 = getView().findViewById(R.id.prp_lab1_ImgView2);
         tvCountProc = getView().findViewById(R.id.prp_lab1_CountProc);
         tvRadius = getView().findViewById(R.id.prp_lab1_Radius);
-        fabAddImg = getView().findViewById(R.id.prp_lab1_fabAdd);
-        fabAddImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Выбор изображения из памяти
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
-            }
+        FloatingActionButton fabAddImg = getView().findViewById(R.id.prp_lab1_fabAdd);
+        fabAddImg.setOnClickListener(v -> {
+            // Выбор изображения из памяти
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
         });
         SeekBar sbCountProc = getView().findViewById(R.id.prp_lab1_SeekBarProc);
         sbCountProc.setMax(Runtime.getRuntime().availableProcessors() - 1);

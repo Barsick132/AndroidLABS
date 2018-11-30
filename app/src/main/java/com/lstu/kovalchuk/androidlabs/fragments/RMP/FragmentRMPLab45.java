@@ -40,22 +40,19 @@ public class FragmentRMPLab45 extends Fragment {
         ftrans.commit();
 
         BottomNavigationView bottomNavigationView = getView().findViewById(R.id.mainBottomNavView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                ftrans = getActivity().getSupportFragmentManager().beginTransaction();
-                switch (menuItem.getItemId()) {
-                    case R.id.action_global:
-                        ftrans.replace(R.id.mainContainer, fragmentRMPLab45_1);
-                        ftrans.commit();
-                        return true;
-                    case R.id.action_history:
-                        ftrans.replace(R.id.mainContainer, fragmentRMPLab45_2);
-                        ftrans.commit();
-                        return true;
-                }
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(menuItem -> {
+            ftrans = getActivity().getSupportFragmentManager().beginTransaction();
+            switch (menuItem.getItemId()) {
+                case R.id.action_global:
+                    ftrans.replace(R.id.mainContainer, fragmentRMPLab45_1);
+                    ftrans.commit();
+                    return true;
+                case R.id.action_history:
+                    ftrans.replace(R.id.mainContainer, fragmentRMPLab45_2);
+                    ftrans.commit();
+                    return true;
             }
+            return false;
         });
         bottomNavigationView.setSelectedItemId(R.id.action_global);
 
