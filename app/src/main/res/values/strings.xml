@@ -54,5 +54,14 @@
     <string name="Lab45">Лабораторные работы 4 и 5</string>
     <string name="Subscriber">Подписчик</string>
     <string name="Publisher">Издатель</string>
-    <string name="Upload_text">Загрузить текст</string>
+    <string name="Upload_text">Загрузить</string>
+    <string name="Start">Start</string>
+    <string name="Cancel">Отмена</string>
+    <string name="FileUploaded">Содержимое файла загружено! Ожидайте...</string>
+    <string name="or">или\nожидайте решения предыдущей</string>
+    <string name="UploadTextAndWaitResult">Загрузитей файл с текстом, чтобы приступить к выполнению задачи</string>
+    <string name="OrWait">Ожидать</string>
+    <string name="Info_for_Start">Чтобы приступить к решению задачи, нажмите Start</string>
+    <string name="Info_for_Stop">Чтобы остановить решение задачи, нажмите Stop</string>
+    <string name="Word">Слово:</string>
 </resources>

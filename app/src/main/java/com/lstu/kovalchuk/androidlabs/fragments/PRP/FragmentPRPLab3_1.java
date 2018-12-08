@@ -1,30 +1,59 @@
 package com.lstu.kovalchuk.androidlabs.fragments.PRP;
 
+
+import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.lstu.kovalchuk.androidlabs.R;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
+
+import static com.lstu.kovalchuk.androidlabs.R.string.Start;
 
 public class FragmentPRPLab3_1 extends Fragment {
 
-    private static final String TAG = "FragmentPRPLab3";
+    private static final String TAG = "FragmentPRPLab3_1";
 
-    private static int BLOCK_SIZE;
-    private static int COUNT_BLOCKS;
+    private static int ID;
+    private static int COUNT_PROC;
+    private Integer complete_proc;
+    private Integer error_complete_proc;
+
+    private Button btnStart;
+    private TextView tvTextInfo0;
+    private TextView tvTextInfo1;
+    private TextView tvTextInfo2;
+    private LinearLayout llListErrors;
+    private ProgressBar pbLoading;
+    private int pbCounter;
+
+    private List<AsyncTask> taskList;
+    public static final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+    private boolean task_started;
 
     public FragmentPRPLab3_1() {
 
@@ -36,116 +65,395 @@ public class FragmentPRPLab3_1 extends Fragment {
         return inflater.inflate(R.layout.fragment_prplab3_1, container, false);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onStart() {
         super.onStart();
 
-        Thread thread = new Thread(() -> {
-            RedisAdapter ra = new RedisAdapter();
-            String block = ra.getBlock();
-            if (block != null) {
-                Thread thread1 = new Thread(() -> {
-                    List<Word> wordList = calcWordsFromStr(block);
-                    /*
-
-                    Подумать над тем, в каком виде это загружать
-                    Может объединять в группы слова, которые, встретились одинаковое кол-во раз,
-                    например, [{"count" : 1, "strings" : ["я", "аня", "вертолет"]},
-                                {"count" : 2, "strings" : ["не", "-", "но"]}]
-
-
-                    Запускать выполнение подсчетов только по нажатию кнопки.
-
-                     */
+        ID = -1;
+        taskList = null;
+        task_started = false;
+        llListErrors = getView().findViewById(R.id.prp_lab3_1_ListError);
+        tvTextInfo0 = getView().findViewById(R.id.prp_lab3_1_TextInfo0);
+        tvTextInfo1 = getView().findViewById(R.id.prp_lab3_1_TextInfo1);
+        tvTextInfo2 = getView().findViewById(R.id.prp_lab3_1_TextInfo2);
+        tvTextInfo1.setVisibility(View.GONE);
+        pbLoading = getView().findViewById(R.id.prp_lab3_1_progressBar);
+        pbLoading.setProgress(0);
+        btnStart = getView().findViewById(R.id.prp_lab3_1_Start);
+        btnStart.setOnClickListener(view -> {
+            if (!task_started) {
+                if (llListErrors.getChildCount() > 0) llListErrors.removeAllViews();
+                Thread thread = new Thread(() -> {
+                    RedisAdapter ra = new RedisAdapter();
+                    try {
+                        String block = ra.getBlock();
+                        taskList = null;
+                        if (block != null) {
+                            String[] split = block.split("\\s+");
+                            getActivity().runOnUiThread(() -> startCalculate(split));
+                        } else {
+                            getActivity().runOnUiThread(() -> {
+                                tvTextInfo2.setText("Нет доступных для обработки блоков");
+                                tvTextInfo2.setTextColor(getResources().getColor(R.color.colorPrimary));
+                                tvTextInfo2.setVisibility(View.VISIBLE);
+                                task_started = false;
+                                btnStart.setText(getResources().getText(R.string.Start));
+                                tvTextInfo0.setText(getResources().getText(R.string.Info_for_Start));
+                                tvTextInfo1.setVisibility(View.GONE);
+                            });
+                            ra.diconnect();
+                        }
+                    } catch (JedisConnectionException ex) {
+                        getActivity().runOnUiThread(() -> {
+                            tvTextInfo2.setText("Ошибка подключения к серверу");
+                            tvTextInfo2.setTextColor(Color.RED);
+                            tvTextInfo2.setVisibility(View.VISIBLE);
+                            task_started = false;
+                            btnStart.setText(getResources().getText(R.string.Start));
+                            tvTextInfo0.setText(getResources().getText(R.string.Info_for_Start));
+                            tvTextInfo1.setVisibility(View.GONE);
+                        });
+                        Log.e(TAG, "onStart: " + ex);
+                    }
                 });
-                thread1.start();
+                thread.start();
+                task_started = true;
+                btnStart.setText("Stop");
+                tvTextInfo0.setText(getResources().getText(R.string.Info_for_Stop));
+            }else {
+                if (taskList == null) return;
+                for (int i = 0; i < taskList.size(); i++) {
+                    taskList.get(i).cancel(true);
+                }
             }
         });
-        thread.start();
     }
 
-    private List<Word> calcWordsFromStr(String block) {
-        List<Word> listWord = new ArrayList<>();
-        String[] split = block.split("\\s+");
-        for (String str : split) {
-            if (searchWord(listWord, str) == null) {
-                listWord.add(0, new Word(str, 1));
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (taskList == null) return;
+        for (int i = 0; i < taskList.size(); i++) {
+            taskList.get(i).cancel(true);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    private void startCalculate(String[] split) {
+        // Получаем число потоков, которое буем запускать для обработки
+        getCountProc();
+
+        pbCounter = 0;
+        pbLoading.setMax(split.length);
+        pbLoading.setProgress(pbCounter);
+
+        List<Word> wordList = Collections.synchronizedList(new ArrayList<>());
+        tvTextInfo2.setText("Начинаем вычисления. Ожидайте...");
+        tvTextInfo2.setTextColor(getResources().getColor(R.color.colorBlack));
+        tvTextInfo2.setVisibility(View.VISIBLE);
+        tvTextInfo1.setVisibility(View.VISIBLE);
+        Log.d(TAG, "startCalculate: Start thread");
+        complete_proc = 0;
+        error_complete_proc = 0;
+        taskList = new ArrayList<>();
+        for (int i = 0; i < COUNT_PROC; i++) {
+            if (COUNT_PROC > 1) {
+                List<String[]> listArraysWords = getListArraysWords(split);
+                // Вызываем в каждом потоке функцию размытия
+                String[] newSplit = listArraysWords.get(i);
+                taskList.add(new AsyncCalculate(newSplit, wordList, i).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
             } else {
-                Word w = searchWord(listWord, str);
-                listWord.remove(w);
-                w.setCount(w.getCount()+1);
-                listWord.add(searchPosition(listWord, w.getCount()), w);
+                taskList.add(new AsyncCalculate(split, wordList, i).execute());
             }
         }
-        return listWord;
+
     }
 
-    private Word searchWord(List<Word> wordList, String word){
-        for(Word w : wordList){
-            if(w.getWord().equals(word)){
-                return w;
-            }
+    private List<String[]> getListArraysWords(String[] split) {
+        int step = split.length / COUNT_PROC;
+        List<String[]> listArraysWords = new ArrayList<>();
+        for (int i = 0; i < COUNT_PROC; i++) {
+            int size_arrays = step;
+            if (i == COUNT_PROC - 1) size_arrays = split.length - i * step;
+            String[] newSplit = new String[size_arrays];
+            System.arraycopy(split, i * step, newSplit, 0, size_arrays);
+            listArraysWords.add(newSplit);
         }
-        return null;
+        return listArraysWords;
     }
 
-    private int searchPosition(List<Word> wordList, int count){
-        int step = wordList.size()/2;
-        int pos = step;
-        if(count>=wordList.get(wordList.size()-1).getCount()) return wordList.size();
-        while (true){
-            if(wordList.get(pos).getCount()>count){
-                if(step!= 1) step = step/2;
-                pos -= step;
+    private void getCountProc() {
+        int processors = Runtime.getRuntime().availableProcessors();
+        if (processors > 4) {
+            COUNT_PROC = 4;
+        } else {
+            if (processors > 1) {
+                COUNT_PROC = Runtime.getRuntime().availableProcessors() - 1;
+            } else {
+                COUNT_PROC = 1;
             }
-            if (wordList.get(pos).getCount()<count){
-                if(step!= 1) step = step/2;
-                pos += step;
-            }
-            if(wordList.get(pos).getCount()<count && wordList.get(pos+1).getCount()>count){
-                return pos+1;
-            }
-            if(wordList.get(pos-1).getCount()<count && wordList.get(pos).getCount()>count){
-                return pos;
-            }
-            if(wordList.get(pos).getCount()==count) return pos;
         }
     }
 
-    interface intRedisAdapter {
-        Jedis jedis = new Jedis("192.168.0.2");
+    @SuppressLint("StaticFieldLeak")
+    class AsyncCalculate extends AsyncTask<Void, Void, Void> {
 
-        String getBlock();
-    }
+        private String[] split;
+        private List<Word> listWords;
+        private int id;
 
-    class RedisAdapter implements intRedisAdapter {
+        AsyncCalculate(String[] split, List<Word> listWords, int id) {
+            this.split = split;
+            this.listWords = listWords;
+            this.id = id;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
-        public String getBlock() {
+        protected Void doInBackground(Void... voids) {
+            try {
+                for (String str : split) {
+                    if (isCancelled()) return null;
+                    synchronized (listWords) {
+                        String str1 = str.toLowerCase();
+                        Predicate condition = sample -> ((Word) sample).word.equals(str1);
+                        Collection ListSearchedObj = CollectionUtils.select(listWords, condition);
+
+                        if (ListSearchedObj.size() == 0) {
+                            listWords.listIterator(0).add(new Word(str1, 1));
+                        } else {
+                            ((Word) ((ArrayList) ListSearchedObj).get(0)).incCountUp();
+                        }
+                        publishProgress();
+                    }
+                }
+                complete_proc++;
+                Log.d(TAG, "onStart: Complete thread " + id + "/" + COUNT_PROC);
+            } catch (Exception ex) {
+                Log.e(TAG, "onStart: " + ex);
+                getActivity().runOnUiThread(() -> {
+                    TextView tvError = new TextView(getActivity());
+                    tvError.setText("В потоке " + id + " произошла ошибка.");
+                    tvError.setTextColor(getResources().getColor(R.color.colorRed));
+                    llListErrors.addView(tvError, layoutParams);
+                });
+                error_complete_proc++;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            pbCounter++;
+            pbLoading.setProgress(pbCounter);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            TextView tvError = new TextView(getActivity());
+            tvError.setText("Поток " + id + " завершен. Всего " + COUNT_PROC);
+            tvError.setTextColor(getResources().getColor(R.color.colorBlack));
+            llListErrors.addView(tvError, layoutParams);
+            if (complete_proc == COUNT_PROC) {
+                Collections.sort(listWords, (a, b) -> {
+                    if (a.getCount() < b.getCount()) return -1;
+                    if (a.getCount() > b.getCount()) return 1;
+                    return a.word.compareTo(b.word);
+                });
+
+                Thread thread = new Thread(() -> {
+                    RedisAdapter ra = new RedisAdapter();
+                    try {
+                        Gson gson = new Gson();
+                        Log.d(TAG, "onPostExecute: data uploaded. ID: " + ID);
+                        ra.setResult(gson.toJson(listWords));
+                        ra.diconnect();
+                        getActivity().runOnUiThread(() -> {
+                            tvTextInfo2.setText("Успешное завершение всех расчетов!");
+                            tvTextInfo2.setTextColor(getResources().getColor(R.color.colorGreen));
+                            tvTextInfo2.setVisibility(View.VISIBLE);
+                            btnStart.setText(getResources().getText(Start));
+                            tvTextInfo0.setText(getResources().getText(R.string.Info_for_Start));
+                            pbLoading.setProgress(0);
+                        });
+                        task_started = false;
+                    } catch (JedisConnectionException ex) {
+                        getActivity().runOnUiThread(() -> {
+                            tvTextInfo2.setVisibility(View.VISIBLE);
+                            tvTextInfo2.setTextColor(Color.RED);
+                            tvTextInfo2.setText("Подключение к серверу потеряно");
+                            if (llListErrors.getChildCount() > 0) llListErrors.removeAllViews();
+                            tvTextInfo1.setVisibility(View.GONE);
+                            btnStart.setText(getResources().getText(Start));
+                            tvTextInfo0.setText(getResources().getText(R.string.Info_for_Start));
+                            pbLoading.setProgress(0);
+                        });
+                        task_started = false;
+                        Log.e(TAG, "onPostExecute: " + ex.getMessage());
+                    }
+                });
+                thread.start();
+            }
+
+            if (error_complete_proc != 0 && error_complete_proc + complete_proc == COUNT_PROC) {
+                tvTextInfo2.setText("Расчеты завершены с ошибкой...");
+                tvTextInfo2.setTextColor(getResources().getColor(R.color.colorRed));
+                Thread thread = new Thread(() -> {
+                    RedisAdapter ra = new RedisAdapter();
+                    try {
+                        ra.returnBlock();
+                        ra.diconnect();
+                        getActivity().runOnUiThread(() -> {
+                            tvTextInfo1.setText("Блок " + ID + "разблокирован для других пользователей");
+                            tvTextInfo1.setTextColor(getResources().getColor(R.color.colorPrimary));
+                            tvTextInfo1.setVisibility(View.VISIBLE);
+                            tvTextInfo2.setVisibility(View.GONE);
+                            if (llListErrors.getChildCount() > 0) llListErrors.removeAllViews();
+                            btnStart.setText(getResources().getText(Start));
+                            tvTextInfo0.setText(getResources().getText(R.string.Info_for_Start));
+                            pbLoading.setProgress(0);
+                        });
+                        task_started = false;
+                    } catch (JedisConnectionException ex) {
+                        getActivity().runOnUiThread(() -> {
+                            tvTextInfo2.setVisibility(View.VISIBLE);
+                            tvTextInfo2.setTextColor(Color.RED);
+                            tvTextInfo2.setText("Подключение к серверу потеряно");
+                            if (llListErrors.getChildCount() > 0) llListErrors.removeAllViews();
+                            tvTextInfo1.setVisibility(View.GONE);
+                            btnStart.setText(getResources().getText(Start));
+                            tvTextInfo0.setText(getResources().getText(R.string.Info_for_Start));
+                            pbLoading.setProgress(0);
+                        });
+                        task_started = false;
+                    }
+                });
+                thread.start();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            error_complete_proc++;
+
+            if (error_complete_proc + complete_proc == COUNT_PROC) {
+                Thread thread = new Thread(() -> {
+                    RedisAdapter ra = new RedisAdapter();
+                    try {
+                        ra.returnBlock();
+                        ra.diconnect();
+                        try {
+                            getActivity().runOnUiThread(() -> {
+                                btnStart.setText(getResources().getText(Start));
+                                tvTextInfo0.setText(getResources().getText(R.string.Info_for_Start));
+                                tvTextInfo1.setVisibility(View.GONE);
+                                tvTextInfo2.setVisibility(View.GONE);
+                                if (llListErrors.getChildCount() > 0) llListErrors.removeAllViews();
+                                pbLoading.setProgress(0);
+                            });
+                        }catch (NullPointerException ex){
+                            Log.e(TAG, "onCancelled: " + ex.getMessage());
+                        }
+                        task_started = false;
+                    } catch (JedisConnectionException ex) {
+                        try {
+                            getActivity().runOnUiThread(() -> {
+                                btnStart.setText(getResources().getText(Start));
+                                tvTextInfo0.setText(getResources().getText(R.string.Info_for_Start));
+                                tvTextInfo1.setVisibility(View.GONE);
+                                tvTextInfo2.setVisibility(View.VISIBLE);
+                                tvTextInfo2.setTextColor(Color.RED);
+                                tvTextInfo2.setText("Подключение к серверу потеряно");
+                                if (llListErrors.getChildCount() > 0) llListErrors.removeAllViews();
+                                pbLoading.setProgress(0);
+                            });
+                        }catch (NullPointerException npex){
+                            Log.e(TAG, "onCancelled: " + npex.getMessage());
+                        }
+                        task_started = false;
+                        Log.e(TAG, "onCancelled: " + ex.getMessage());
+                    }
+                });
+                thread.start();
+            }
+        }
+    }
+
+    private class RedisAdapter {
+        private Jedis jedis;
+
+        private RedisAdapter() {
+            jedis = new Jedis("192.168.0.2");
+        }
+
+        private String getBlock() {
             List<String> res = new ArrayList<>();
-            BLOCK_SIZE = Integer.parseInt(jedis.get("block_size"));
-            COUNT_BLOCKS = Integer.parseInt(jedis.get("count_blocks"));
+            int BLOCK_SIZE = Integer.parseInt(jedis.get("block_size"));
+            int COUNT_BLOCKS = Integer.parseInt(jedis.get("count_blocks"));
             if (COUNT_BLOCKS == 0) return null;
             for (int i = 0; i < COUNT_BLOCKS; i++) {
                 boolean taken = Boolean.parseBoolean(jedis.get("flag" + i));
                 if (!taken) {
+                    ID = i;
+                    getActivity().runOnUiThread(() -> {
+                        tvTextInfo1.setText("В этой сессии ваш ID: " + ID);
+                        tvTextInfo1.setTextColor(getResources().getColor(R.color.colorPrimary));
+                    });
+                    int count_worker = Integer.parseInt(jedis.get("worker_counter"));
+                    jedis.set("worker_counter", String.valueOf(count_worker + 1));
                     jedis.set("flag" + i, "true");
                     return jedis.get("block" + i);
                 }
             }
+            getActivity().runOnUiThread(() -> {
+                tvTextInfo2.setText("Нет доступных для обработки блоков");
+                tvTextInfo2.setTextColor(getResources().getColor(R.color.colorPrimary));
+            });
             return null;
+        }
+
+        private void returnBlock() {
+            int count_worker = Integer.parseInt(jedis.get("worker_counter"));
+            jedis.set("worker_counter", String.valueOf(count_worker - 1));
+            jedis.set("flag" + ID, "false");
+        }
+
+        private void setResult(String res) {
+            jedis.set("res" + ID, res);
+            int count_worker = Integer.parseInt(jedis.get("worker_counter"));
+            jedis.set("worker_counter", String.valueOf(count_worker - 1));
+            int count_complete = Integer.parseInt(jedis.get("complete_counter"));
+            jedis.set("complete_counter", String.valueOf(count_complete + 1));
+            ID = -1;
+        }
+
+        private void diconnect() {
+            try {
+                jedis.close();
+                jedis.disconnect();
+            } catch (JedisConnectionException ex) {
+                Log.e(TAG, "diconnect: " + ex.getMessage());
+            }
         }
     }
 
-    private class Word{
+    public class Word {
         private String word;
         private int count;
 
-        public Word(String word, int count) {
+        Word(String word, int count) {
             this.word = word;
             this.count = count;
         }
 
-        public String getWord() {
+        String getWord() {
             return word;
         }
 
@@ -153,12 +461,20 @@ public class FragmentPRPLab3_1 extends Fragment {
             this.word = word;
         }
 
-        public int getCount() {
+        int getCount() {
             return count;
         }
 
         public void setCount(int count) {
             this.count = count;
+        }
+
+        void incCountUp() {
+            count++;
+        }
+
+        void addCountUp(int number) {
+            count+=number;
         }
     }
 }
