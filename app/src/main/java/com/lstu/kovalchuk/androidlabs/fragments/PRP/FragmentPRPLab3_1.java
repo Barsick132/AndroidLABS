@@ -4,9 +4,7 @@ package com.lstu.kovalchuk.androidlabs.fragments.PRP;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -80,6 +78,8 @@ public class FragmentPRPLab3_1 extends Fragment {
         tvTextInfo1.setVisibility(View.GONE);
         pbLoading = getView().findViewById(R.id.prp_lab3_1_progressBar);
         pbLoading.setProgress(0);
+
+        // Обработчик кнопки запуска расчетов
         btnStart = getView().findViewById(R.id.prp_lab3_1_Start);
         btnStart.setOnClickListener(view -> {
             if (!task_started) {
@@ -134,19 +134,15 @@ public class FragmentPRPLab3_1 extends Fragment {
     public void onPause() {
         super.onPause();
 
+        // Прерываем расчеты, если уходим с данного фрагмента
         if (taskList == null) return;
         for (int i = 0; i < taskList.size(); i++) {
             taskList.get(i).cancel(true);
         }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
+    // Запуск потокв для подсчета слов
     private void startCalculate(String[] split) {
-        // Получаем число потоков, которое буем запускать для обработки
         getCountProc();
 
         pbCounter = 0;
@@ -175,6 +171,7 @@ public class FragmentPRPLab3_1 extends Fragment {
 
     }
 
+    // Разбивка массива слов на несколько равных массивов (по кол-ву потоков)
     private List<String[]> getListArraysWords(String[] split) {
         int step = split.length / COUNT_PROC;
         List<String[]> listArraysWords = new ArrayList<>();
@@ -188,6 +185,7 @@ public class FragmentPRPLab3_1 extends Fragment {
         return listArraysWords;
     }
 
+    // Определитель оптимального кол-ва потоков для обработки
     private void getCountProc() {
         int processors = Runtime.getRuntime().availableProcessors();
         if (processors > 4) {
@@ -201,6 +199,7 @@ public class FragmentPRPLab3_1 extends Fragment {
         }
     }
 
+    // Асинхронный класс для выполнения подсчетов
     @SuppressLint("StaticFieldLeak")
     class AsyncCalculate extends AsyncTask<Void, Void, Void> {
 
@@ -208,13 +207,14 @@ public class FragmentPRPLab3_1 extends Fragment {
         private List<Word> listWords;
         private int id;
 
+
         AsyncCalculate(String[] split, List<Word> listWords, int id) {
             this.split = split;
             this.listWords = listWords;
             this.id = id;
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.N)
+        // Счетчик слов
         @Override
         protected Void doInBackground(Void... voids) {
             try {
@@ -248,18 +248,22 @@ public class FragmentPRPLab3_1 extends Fragment {
             return null;
         }
 
+        // Обновление шкалы загрузки
         @Override
         protected void onProgressUpdate(Void... values) {
             pbCounter++;
             pbLoading.setProgress(pbCounter);
         }
 
+        // Обработчик завершения потока
         @Override
         protected void onPostExecute(Void aVoid) {
             TextView tvError = new TextView(getActivity());
             tvError.setText("Поток " + id + " завершен. Всего " + COUNT_PROC);
             tvError.setTextColor(getResources().getColor(R.color.colorBlack));
             llListErrors.addView(tvError, layoutParams);
+
+            // Если все потоки завершены, передаем результаты в БД
             if (complete_proc == COUNT_PROC) {
                 Collections.sort(listWords, (a, b) -> {
                     if (a.getCount() < b.getCount()) return -1;
@@ -301,6 +305,7 @@ public class FragmentPRPLab3_1 extends Fragment {
                 thread.start();
             }
 
+            // Если были ошибки при расчетах, то открываем доступ к блоку в БД другим Подписчикам
             if (error_complete_proc != 0 && error_complete_proc + complete_proc == COUNT_PROC) {
                 tvTextInfo2.setText("Расчеты завершены с ошибкой...");
                 tvTextInfo2.setTextColor(getResources().getColor(R.color.colorRed));
@@ -338,11 +343,13 @@ public class FragmentPRPLab3_1 extends Fragment {
             }
         }
 
+        // Обработчик прерывания потока
         @Override
         protected void onCancelled() {
             super.onCancelled();
             error_complete_proc++;
 
+            // Если все потоки завершены, то открываем доступ в БД для других потоков
             if (error_complete_proc + complete_proc == COUNT_PROC) {
                 Thread thread = new Thread(() -> {
                     RedisAdapter ra = new RedisAdapter();
@@ -386,13 +393,16 @@ public class FragmentPRPLab3_1 extends Fragment {
         }
     }
 
+    // Класс для работы с БД Redis
     private class RedisAdapter {
         private Jedis jedis;
 
+        // Конструктор подключения к Серверу
         private RedisAdapter() {
             jedis = new Jedis("192.168.0.2");
         }
 
+        // Функция получения блока слов из БД
         private String getBlock() {
             List<String> res = new ArrayList<>();
             int BLOCK_SIZE = Integer.parseInt(jedis.get("block_size"));
@@ -419,12 +429,14 @@ public class FragmentPRPLab3_1 extends Fragment {
             return null;
         }
 
+        // Функция снятия блокировки блока в БД
         private void returnBlock() {
             int count_worker = Integer.parseInt(jedis.get("worker_counter"));
             jedis.set("worker_counter", String.valueOf(count_worker - 1));
             jedis.set("flag" + ID, "false");
         }
 
+        // Функция передачи результата в БД
         private void setResult(String res) {
             jedis.set("res" + ID, res);
             int count_worker = Integer.parseInt(jedis.get("worker_counter"));
@@ -434,6 +446,7 @@ public class FragmentPRPLab3_1 extends Fragment {
             ID = -1;
         }
 
+        // Функция отключения от БД
         private void diconnect() {
             try {
                 jedis.close();
@@ -444,6 +457,7 @@ public class FragmentPRPLab3_1 extends Fragment {
         }
     }
 
+    // Класс для хранения слова и кол-ва его упоминаний
     public class Word {
         private String word;
         private int count;

@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -27,8 +26,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.lstu.kovalchuk.androidlabs.RequestData;
 import com.lstu.kovalchuk.androidlabs.R;
+import com.lstu.kovalchuk.androidlabs.RequestData;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.rengwuxian.materialedittext.MaterialMultiAutoCompleteTextView;
 
@@ -75,12 +74,9 @@ public class FragmentRMPLab45_1 extends Fragment {
 
         cvContactData = getView().findViewById(R.id.frg1ContactData);
         cbContactData = getView().findViewById(R.id.frg1CheckContactData);
-        cbContactData.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) cvContactData.setVisibility(View.VISIBLE);
-                else cvContactData.setVisibility(View.GONE);
-            }
+        cbContactData.setOnCheckedChangeListener((compoundButton, b) -> {
+            if (b) cvContactData.setVisibility(View.VISIBLE);
+            else cvContactData.setVisibility(View.GONE);
         });
 
         metURL = getView().findViewById(R.id.frg1URL);
@@ -92,51 +88,45 @@ public class FragmentRMPLab45_1 extends Fragment {
 
         cvContactData = getView().findViewById(R.id.frg1ContactData);
         cbContactData = getView().findViewById(R.id.frg1CheckContactData);
-        cbContactData.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) cvContactData.setVisibility(View.VISIBLE);
-                else cvContactData.setVisibility(View.GONE);
-            }
+        cbContactData.setOnCheckedChangeListener((compoundButton, b) -> {
+            if (b) cvContactData.setVisibility(View.VISIBLE);
+            else cvContactData.setVisibility(View.GONE);
         });
 
         requestData = new RequestData();
 
         Button btnSendData = getView().findViewById(R.id.frg1SendRequest);
-        btnSendData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //metURL.setError(null);
-                if (metURL.getText().length() != 0) {
-                    requestData.setuRL(metFilter(metURL));
-                    requestData.setComment(metFilter(mctComment));
-                    if (cbContactData.isChecked()) {
-                        requestData.setFullName(metFilter(metFullName));
-                        requestData.setEmail(metFilter(metEmail));
-                        if (!metPhone.getText().toString().isEmpty() &&
-                                metPhone.getText().toString().length() != 10) {
-                            metPhone.setError("Номер должен состоять из 10 цифр");
-                            return;
-                        }
-                        requestData.setPhone(metFilter(metPhone));
-                        requestData.setAddress(metFilter(metAddress));
+        btnSendData.setOnClickListener(view -> {
+            //metURL.setError(null);
+            if (metURL.getText().length() != 0) {
+                requestData.setuRL(metFilter(metURL));
+                requestData.setComment(metFilter(mctComment));
+                if (cbContactData.isChecked()) {
+                    requestData.setFullName(metFilter(metFullName));
+                    requestData.setEmail(metFilter(metEmail));
+                    if (!metPhone.getText().toString().isEmpty() &&
+                            metPhone.getText().toString().length() != 10) {
+                        metPhone.setError("Номер должен состоять из 10 цифр");
+                        return;
                     }
-                } else {
-                    metURL.setError("Данное поле обязательно для заполнения");
-                    return;
+                    requestData.setPhone(metFilter(metPhone));
+                    requestData.setAddress(metFilter(metAddress));
                 }
-
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        showPB(true);
-                        new SendRequest();
-                    }
-                };
-
-                Thread thread = new Thread(runnable);
-                thread.start();
+            } else {
+                metURL.setError("Данное поле обязательно для заполнения");
+                return;
             }
+
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    showPB(true);
+                    new SendRequest();
+                }
+            };
+
+            Thread thread = new Thread(runnable);
+            thread.start();
         });
     }
 

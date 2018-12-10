@@ -92,6 +92,7 @@ public class FragmentPRPLab3_2 extends Fragment {
             Log.e(TAG, "onStart: " + e);
         }
 
+        // Обработчик нажатия кнопки "Загрузить"
         btnSendText = getView().findViewById(R.id.prp_lab3_2_SendText);
         btnSendText.setOnClickListener(view -> {
             tvTextInfo.setVisibility(View.GONE);
@@ -126,6 +127,7 @@ public class FragmentPRPLab3_2 extends Fragment {
             thread.start();
         });
 
+        // Обработчик нажатия кнопки "Ожидать"
         btnWait = getView().findViewById(R.id.prp_lab3_2_Wait);
         btnWait.setOnClickListener(view -> {
             tvTextInfo.setVisibility(View.GONE);
@@ -165,6 +167,7 @@ public class FragmentPRPLab3_2 extends Fragment {
             thread.start();
         });
 
+        // Обработчик нажатия кнопки "Отмена"
         btnCancel = getView().findViewById(R.id.prp_lab3_2_Cancel);
         btnCancel.setOnClickListener(view -> ra.close());
     }
@@ -172,12 +175,15 @@ public class FragmentPRPLab3_2 extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+
+        // Останавливаем поток ожидания при уходе с текущего фрагмента
         if (ra != null) {
             ra.diconnect();
             ra.close();
         }
     }
 
+    // Функция блокировки содержимого главного Layout
     private void layoutContentEnable(boolean enable){
         if(enable) {
             for (int i = 0; i < llLayoutContent.getChildCount(); i++) {
@@ -192,6 +198,7 @@ public class FragmentPRPLab3_2 extends Fragment {
         }
     }
 
+    // Функция начала получения результата из БД
     private void startResultHandler() {
         getActivity().runOnUiThread(() -> {
             llProgressBar.setVisibility(View.VISIBLE);
@@ -223,6 +230,7 @@ public class FragmentPRPLab3_2 extends Fragment {
         }
     }
 
+    // Обработчик результата с выводом
     private void ResultHandler(List<String> listResultBlocks) {
         List<Word> listResult = new ArrayList<>();
         Gson gson = new Gson();
@@ -264,14 +272,17 @@ public class FragmentPRPLab3_2 extends Fragment {
         });
     }
 
+    // Класс для работы с БД Redis
     private class RedisAdapter {
         private boolean close = false;
         Jedis jedis;
 
+        // Конструктор подключения к Серверу
         private RedisAdapter(){
             jedis = new Jedis("192.168.0.2");
         }
 
+        // Функция передачи блоков в БД
         private void setBlocks(List<String> listBlocks) {
             jedis.set("block_size", String.valueOf(BLOCK_SIZE));
             jedis.set("count_blocks", String.valueOf(COUNT_BLOCKS));
@@ -285,6 +296,7 @@ public class FragmentPRPLab3_2 extends Fragment {
             }
         }
 
+        // Функция ожидания результатов вычислений в БД
         @SuppressLint("SetTextI18n")
         private List<String> waitResult() {
             COUNT_BLOCKS = Integer.parseInt(jedis.get("count_blocks"));
@@ -311,6 +323,7 @@ public class FragmentPRPLab3_2 extends Fragment {
             }
         }
 
+        // Функция проверки наличия старой задачи в БД
         private boolean checkUplloadedOldTask() {
             try {
                 return Boolean.parseBoolean(jedis.get("oldTaskUploaded"));
@@ -319,6 +332,7 @@ public class FragmentPRPLab3_2 extends Fragment {
             }
         }
 
+        // Функция получения результатов расчетов из БД
         private List<String> getResult() {
             List<String> list = new ArrayList<>(COUNT_BLOCKS);
             for (int i = 0; i < COUNT_BLOCKS; i++) {
@@ -327,10 +341,12 @@ public class FragmentPRPLab3_2 extends Fragment {
             return list;
         }
 
+        // Функция завершения потока ожидания результатов
         private void close() {
             close = true;
         }
 
+        // Функция отключения от БД
         private void diconnect(){
             try {
                 jedis.close();
