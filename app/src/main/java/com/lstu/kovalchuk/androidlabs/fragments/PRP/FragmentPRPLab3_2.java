@@ -276,7 +276,7 @@ public class FragmentPRPLab3_2 extends Fragment {
 
         // Конструктор подключения к Серверу
         private RedisAdapter(){
-            jedis = new Jedis("localhost");
+            jedis = new Jedis("127.0.0.1");
         }
 
         // Функция передачи блоков в БД
