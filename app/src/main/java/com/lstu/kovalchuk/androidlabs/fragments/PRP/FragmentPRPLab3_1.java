@@ -14,20 +14,17 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.google.gson.Gson;
 import com.lstu.kovalchuk.androidlabs.R;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import static com.lstu.kovalchuk.androidlabs.R.string.Start;
 
@@ -399,7 +396,7 @@ public class FragmentPRPLab3_1 extends Fragment {
 
         // Конструктор подключения к Серверу
         private RedisAdapter() {
-            jedis = new Jedis("192.168.0.2");
+            jedis = new Jedis("localhost");
         }
 
         // Функция получения блока слов из БД
