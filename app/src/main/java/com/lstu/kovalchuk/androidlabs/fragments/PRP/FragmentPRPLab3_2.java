@@ -11,14 +11,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lstu.kovalchuk.androidlabs.R;
 import com.lstu.kovalchuk.androidlabs.fragments.PRP.FragmentPRPLab3_1.Word;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class FragmentPRPLab3_2 extends Fragment {
 
@@ -276,7 +279,7 @@ public class FragmentPRPLab3_2 extends Fragment {
 
         // Конструктор подключения к Серверу
         private RedisAdapter(){
-            jedis = new Jedis("127.0.0.1");
+            jedis = new Jedis("192.168.0.2");
         }
 
         // Функция передачи блоков в БД

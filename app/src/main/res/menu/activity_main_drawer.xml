@@ -33,6 +33,10 @@
                 android:id="@+id/nav_prp_lab3"
                 android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
                 android:title="@string/Lab3" />
+            <item
+                android:id="@+id/nav_prp_lab4"
+                android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:title="@string/Lab4" />
         </menu>
     </item>
 </menu>

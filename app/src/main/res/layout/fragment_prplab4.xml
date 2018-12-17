@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".fragments.PRP.FragmentPRPLab3">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <FrameLayout
-        android:id="@+id/prp_lab3_Container"
+        android:id="@+id/prp_lab4_Container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
     <android.support.design.widget.BottomNavigationView
-        android:id="@+id/prp_lab3_NavBottom"
+        android:id="@+id/prp_lab4_NavBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
@@ -22,4 +20,5 @@
         app:itemIconTint="@color/bottom_nav_item_background_colors"
         app:itemTextColor="@color/bottom_nav_item_background_colors"
         app:menu="@menu/menu_bottom_navigation2"/>
+
 </LinearLayout>

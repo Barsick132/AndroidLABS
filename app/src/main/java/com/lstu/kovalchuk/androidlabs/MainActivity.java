@@ -1,11 +1,9 @@
 package com.lstu.kovalchuk.androidlabs;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentTransaction;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,9 +13,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.lstu.kovalchuk.androidlabs.fragments.PRP.FragmentPRPLab3;
-import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab1;
 import com.lstu.kovalchuk.androidlabs.fragments.PRP.FragmentPRPLab1;
+import com.lstu.kovalchuk.androidlabs.fragments.PRP.FragmentPRPLab3;
+import com.lstu.kovalchuk.androidlabs.fragments.PRP.FragmentPRPLab4;
+import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab1;
 import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab2;
 import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab3;
 import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab45;
@@ -27,6 +26,7 @@ public class MainActivity extends AppCompatActivity
 
     private FragmentPRPLab1 fgtPRPLab1;
     private FragmentPRPLab3 fgtPRPLab3;
+    private FragmentPRPLab4 fgtPRPLab4;
     private FragmentRMPLab1 fgtRMPLab1;
     private FragmentRMPLab2 fgtRMPLab2;
     private FragmentRMPLab3 fgtRMPLab3;
@@ -54,10 +54,11 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         tvText = findViewById(R.id.mainText);
-        fgtRMPLab1 = new FragmentRMPLab1();
-        fgtRMPLab2 = new FragmentRMPLab2();
         fgtPRPLab1 = new FragmentPRPLab1();
         fgtPRPLab3 = new FragmentPRPLab3();
+        fgtPRPLab4 = new FragmentPRPLab4();
+        fgtRMPLab1 = new FragmentRMPLab1();
+        fgtRMPLab2 = new FragmentRMPLab2();
         fgtRMPLab3 = new FragmentRMPLab3();
         fgtRMPLab45 = new FragmentRMPLab45();
         applicationContext = getApplicationContext();
@@ -109,6 +110,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_prp_lab3:
                 ftrans.replace(R.id.container, fgtPRPLab3);
+                break;
+            case R.id.nav_prp_lab4:
+                ftrans.replace(R.id.container, fgtPRPLab4);
                 break;
         }
 
