@@ -12,11 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lstu.kovalchuk.androidlabs.R;
+import com.lstu.kovalchuk.androidlabs.fragments.PRP.SocketLib.SocketAdapter;
+import com.lstu.kovalchuk.androidlabs.fragments.PRP.SocketLib.SocketPubSub;
+import com.neovisionaries.ws.client.WebSocketException;
 
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
@@ -29,21 +33,19 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPubSub;
-
-public class FragmentPRPLab4_2 extends Fragment {
-
+public class FragmentPRPLab5_2 extends Fragment {
     private static final String HOST = "192.168.0.2";
-    private static final String TAG = "FragmentPRPLab4_2";
+    private static final String TAG = "FragmentPRPLab5_2";
     private static final String CH_RECEIVE = "2", CH_SEND = "1";
     private static final int BL_S = 100000;
 
+    private Button btnSendText;
     private LinearLayout llProgressBar;
     private LinearLayout llLayoutContent;
     private LinearLayout llResult;
     private TextView tvTextInfo;
     private TextView tvTextInfo2;
+    private ProgressBar pbFast;
 
     private FragmentActivity fragmentActivity;
 
@@ -58,7 +60,7 @@ public class FragmentPRPLab4_2 extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_prplab4_2, container, false);
+        return inflater.inflate(R.layout.fragment_prplab5_2, container, false);
     }
 
     @Override
@@ -67,18 +69,20 @@ public class FragmentPRPLab4_2 extends Fragment {
 
         fragmentActivity = getActivity();
 
-        tvTextInfo = getView().findViewById(R.id.prp_lab4_2_TextInfo);
+        pbFast = getView().findViewById(R.id.prp_lab5_2_FastPB);
+        pbFast.setVisibility(View.GONE);
+        tvTextInfo = getView().findViewById(R.id.prp_lab5_2_TextInfo);
         tvTextInfo.setVisibility(View.GONE);
-        tvTextInfo2 = getView().findViewById(R.id.prp_lab4_2_TextInfo2);
+        tvTextInfo2 = getView().findViewById(R.id.prp_lab5_2_TextInfo2);
 
-        llProgressBar = getView().findViewById(R.id.prp_lab4_2_ProgressBar);
+        llProgressBar = getView().findViewById(R.id.prp_lab5_2_ProgressBar);
         llProgressBar.setVisibility(View.GONE);
-        llLayoutContent = getView().findViewById(R.id.prp_lab4_2_LayoutContent);
-        llResult = getView().findViewById(R.id.prp_lab4_2_layoutRes);
+        llLayoutContent = getView().findViewById(R.id.prp_lab5_2_LayoutContent);
+        llResult = getView().findViewById(R.id.prp_lab5_2_layoutRes);
         layoutContentEnable(true);
 
         // Обработчик нажатия кнопки "Загрузить"
-        Button btnSendText = getView().findViewById(R.id.prp_lab4_2_SendText);
+        btnSendText = getView().findViewById(R.id.prp_lab5_2_SendText);
         btnSendText.setOnClickListener(view -> {
             updateProgressBarUI(true);
             tvTextInfo.setVisibility(View.GONE);
@@ -86,26 +90,27 @@ public class FragmentPRPLab4_2 extends Fragment {
                 try {
                     ra = new RedisAdapter(BL_S);
                     ra.connect();
-                } catch (Exception ex) {
+                } catch (WebSocketException conEx) {
                     fragmentActivity.runOnUiThread(() -> {
-                        if (!ex.getMessage().equals("java.net.SocketException: Socket is closed")) {
-                            updateTextViewUI(tvTextInfo,
-                                    "Не удалось подключиться к серверу",
-                                    Color.RED,
-                                    View.VISIBLE);
-                        }
+                        updateTextViewUI(tvTextInfo,
+                                "Не удалось подключиться к серверу",
+                                Color.RED,
+                                View.VISIBLE);
                         updateProgressBarUI(false);
-                        Log.e(TAG, "onStart: " + ex.getMessage());
+                        Log.e(TAG, "onStart: " + conEx.getMessage());
                     });
+                } catch (Exception ex) {
+                    Log.e(TAG, "onStart: неизвестная ошибка");
                 }
             });
             thread.start();
         });
 
+
         // Обработчик нажатия кнопки "Отмена"
-        Button btnCancel = getView().findViewById(R.id.prp_lab4_2_Cancel);
+        Button btnCancel = getView().findViewById(R.id.prp_lab5_2_Cancel);
         btnCancel.setOnClickListener(view -> {
-            ra.jedisPubSub.unsubscribe();
+            ra.socketPubSub.unsubscribe();
             updateProgressBarUI(false);
             updateTextViewUI(tvTextInfo, "Обработка текста была прервана",
                     Color.RED, View.VISIBLE);
@@ -116,8 +121,8 @@ public class FragmentPRPLab4_2 extends Fragment {
                 printResult(wl);
             }).start();
         } else {
-            if (ra != null && ra.jedis.isConnected()) {
-                Log.d(TAG, "onStart: jedis is Connected!");
+            if (ra != null && ra.socketAdapter.isConnected()) {
+                Log.d(TAG, "onStart: socketAdapter is Connected!");
                 updateProgressBarUI(true);
                 updateTextViewUI(tvTextInfo2, "Обработано " + ra.count_complete + " блоков из " + ra.COUNT_BLOCKS,
                         Color.WHITE, View.VISIBLE);
@@ -136,6 +141,12 @@ public class FragmentPRPLab4_2 extends Fragment {
     }
 
     private void printResult(List<FragmentPRPLab3_1.Word> wordList) {
+
+        fragmentActivity.runOnUiThread(() -> {
+            pbFast.setVisibility(View.VISIBLE);
+            btnSendText.setVisibility(View.GONE);
+        });
+
         StringBuilder sbRes1 = new StringBuilder();
         StringBuilder sbRes2 = new StringBuilder();
         for (int i = wordList.size() - 1; i >= 0; i--) {
@@ -145,6 +156,9 @@ public class FragmentPRPLab4_2 extends Fragment {
         }
 
         fragmentActivity.runOnUiThread(() -> {
+            pbFast.setVisibility(View.GONE);
+            btnSendText.setVisibility(View.VISIBLE);
+
             TextView textView1 = new TextView(fragmentActivity);
             textView1.setText(sbRes1.toString());
             textView1.setTextColor(Color.BLACK);
@@ -192,11 +206,11 @@ public class FragmentPRPLab4_2 extends Fragment {
     }
 
     private class RedisAdapter {
-        private Jedis jedis;
-        private JedisPubSub jedisPubSub;
+        private SocketAdapter socketAdapter;
+        private SocketPubSub socketPubSub;
         private int COUNT_BLOCKS;
         private int BLOCK_SIZE;
-        private List<Block> listBlocks;
+        private List<FragmentPRPLab4_2.Block> listBlocks;
         private MultiSet<String> multiSet;
         private int count_complete;
 
@@ -205,7 +219,7 @@ public class FragmentPRPLab4_2 extends Fragment {
             multiSet = new HashMultiSet<>();
             count_complete = 0;
 
-            jedisPubSub = new JedisPubSub() {
+            socketPubSub = new SocketPubSub() {
                 @Override
                 public void onMessage(String channel, String message) {
                     super.onMessage(channel, message);
@@ -234,17 +248,17 @@ public class FragmentPRPLab4_2 extends Fragment {
                 }
 
                 @Override
-                public void onUnsubscribe(String channel, int subscribedChannels) {
-                    super.onUnsubscribe(channel, subscribedChannels);
-                    disconnect(jedis);
+                public void onUnsubscribe(String channel) {
+                    super.onUnsubscribe(channel);
+                    disconnect(socketAdapter);
                 }
             };
             listBlocks = getTextBlocks();
         }
 
-        private List<Block> getTextBlocks() {
+        private List<FragmentPRPLab4_2.Block> getTextBlocks() {
             // Читаем текстовый файл и разбиваем на блоки
-            List<Block> listBlocks = new ArrayList<>();
+            List<FragmentPRPLab4_2.Block> listBlocks = new ArrayList<>();
             try {
                 InputStream is = fragmentActivity.getAssets().open("text.txt");
                 byte[] bytes = new byte[is.available()];
@@ -254,9 +268,9 @@ public class FragmentPRPLab4_2 extends Fragment {
 
                 COUNT_BLOCKS = (int) Math.ceil(text.length() / (double) BLOCK_SIZE);
                 for (int i = 0; i < COUNT_BLOCKS - 1; i++) {
-                    listBlocks.add(new Block(text.substring(BLOCK_SIZE * i, BLOCK_SIZE + BLOCK_SIZE * i)));
+                    listBlocks.add(new FragmentPRPLab4_2.Block(text.substring(BLOCK_SIZE * i, BLOCK_SIZE + BLOCK_SIZE * i)));
                 }
-                listBlocks.add(new Block(text.substring(BLOCK_SIZE * (COUNT_BLOCKS - 1))));
+                listBlocks.add(new FragmentPRPLab4_2.Block(text.substring(BLOCK_SIZE * (COUNT_BLOCKS - 1))));
                 return listBlocks;
             } catch (IOException e) {
                 Log.e(TAG, "onStart: " + e);
@@ -264,50 +278,46 @@ public class FragmentPRPLab4_2 extends Fragment {
             }
         }
 
-        private void connect() {
-            jedis = new Jedis(HOST);
-            jedis.connect();
+        private void connect() throws IOException, WebSocketException {
+            socketAdapter = new SocketAdapter(HOST);
 
             wl = null;
             fragmentActivity.runOnUiThread(() -> {
                 updateTextViewUI(tvTextInfo2, "Обработано 0 блоков из " + COUNT_BLOCKS,
                         Color.WHITE, View.VISIBLE);
             });
-            jedis.subscribe(jedisPubSub, CH_RECEIVE);
+            socketAdapter.subscribe(socketPubSub, CH_RECEIVE);
+
         }
 
         private void sendBlock(String uuid) {
-            Block b = null;
-            for (Block block : listBlocks) {
-                if (block.uuid == null) {
-                    block.uuid = uuid;
+            FragmentPRPLab4_2.Block b = null;
+            for (FragmentPRPLab4_2.Block block : listBlocks) {
+                if (block.getUuid() == null) {
+                    block.setUuid(uuid);
                     b = block;
                     break;
                 }
             }
-            try (Jedis jedis = new Jedis(HOST)) {
-                jedis.connect();
-                if (b != null)
-                    jedis.publish(CH_SEND, uuid + ": Text: " + b.text);
-                else jedis.publish(CH_SEND, uuid + ": Not Blocks");
-            } catch (Exception ex) {
-                Log.e(TAG, "sendBlock: " + ex.getMessage());
-            }
+
+            if (b != null)
+                socketAdapter.publish(CH_SEND, uuid + ": Text: " + b.getText());
+            else socketAdapter.publish(CH_SEND, uuid + ": Not Blocks");
         }
 
         private void returnBlock(String uuid) {
-            for (Block block : listBlocks) {
-                if (block.uuid.equals(uuid)) {
-                    block.uuid = null;
+            for (FragmentPRPLab4_2.Block block : listBlocks) {
+                if (block.getUuid().equals(uuid)) {
+                    block.setUuid(null);
                     break;
                 }
             }
         }
 
         private void addResult(String uuid, String result) {
-            for (Block block : listBlocks) {
-                if (block.uuid.equals(uuid)) {
-                    block.complete = true;
+            for (FragmentPRPLab4_2.Block block : listBlocks) {
+                if (block.getUuid().equals(uuid)) {
+                    block.setComplete(true);
                     count_complete++;
                     break;
                 }
@@ -329,55 +339,18 @@ public class FragmentPRPLab4_2 extends Fragment {
 
                 printResult(wl);
 
-                jedisPubSub.unsubscribe();
+                socketPubSub.unsubscribe();
             }
         }
 
-        private void disconnect(Jedis jedis) {
+        private void disconnect(SocketAdapter socketAdapter) {
             try {
-                if (jedis != null) {
-                    jedis.close();
-                    jedis.disconnect();
+                if (socketAdapter != null) {
+                    socketAdapter.close();
                 }
             } catch (Exception ex) {
                 Log.e(TAG, "disconnect: " + ex.getMessage());
             }
-        }
-    }
-
-    static class Block {
-        private String text;
-        private String uuid;
-        private Boolean complete;
-
-        Block(String block) {
-            this.text = block;
-            uuid = null;
-            complete = false;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public String getUuid() {
-            return uuid;
-        }
-
-        public void setUuid(String uuid) {
-            this.uuid = uuid;
-        }
-
-        public Boolean getComplete() {
-            return complete;
-        }
-
-        public void setComplete(Boolean complete) {
-            this.complete = complete;
         }
     }
 }

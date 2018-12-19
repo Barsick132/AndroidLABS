@@ -19,10 +19,14 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.lstu.kovalchuk.androidlabs.R;
+import com.lstu.kovalchuk.androidlabs.fragments.PRP.SocketLib.SocketAdapter;
+import com.lstu.kovalchuk.androidlabs.fragments.PRP.SocketLib.SocketPubSub;
+import com.neovisionaries.ws.client.WebSocketException;
 
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,13 +36,9 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPubSub;
-
-public class FragmentPRPLab4_1 extends Fragment {
-
+public class FragmentPRPLab5_1 extends Fragment {
     private static final String HOST = "192.168.0.2";
-    private static final String TAG = "FragmentPRPLab4_1";
+    private static final String TAG = "FragmentPRPLab5_1";
     private static final String CH_RECEIVE = "1", CH_SEND = "2";
 
     private static int COUNT_PROC;
@@ -61,7 +61,7 @@ public class FragmentPRPLab4_1 extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_prplab4_1, container, false);
+        return inflater.inflate(R.layout.fragment_prplab5_1, container, false);
     }
 
     @Override
@@ -70,17 +70,17 @@ public class FragmentPRPLab4_1 extends Fragment {
 
         fragmentActivity = getActivity();
 
-        llListErrors = getView().findViewById(R.id.prp_lab4_1_ListError);
-        TextView tvTextInfo0 = getView().findViewById(R.id.prp_lab4_1_TextInfo0);
-        TextView tvTextInfo1 = getView().findViewById(R.id.prp_lab4_1_TextInfo1);
-        tvTextInfo2 = getView().findViewById(R.id.prp_lab4_1_TextInfo2);
+        llListErrors = getView().findViewById(R.id.prp_lab5_1_ListError);
+        TextView tvTextInfo0 = getView().findViewById(R.id.prp_lab5_1_TextInfo0);
+        TextView tvTextInfo1 = getView().findViewById(R.id.prp_lab5_1_TextInfo1);
+        tvTextInfo2 = getView().findViewById(R.id.prp_lab5_1_TextInfo2);
         tvTextInfo1.setVisibility(View.GONE);
-        pbLoading = getView().findViewById(R.id.prp_lab4_1_progressBar);
+        pbLoading = getView().findViewById(R.id.prp_lab5_1_progressBar);
         pbLoading.setProgress(0);
 
         getCountProc();
 
-        Button btnSendText = getView().findViewById(R.id.prp_lab4_1_Start);
+        Button btnSendText = getView().findViewById(R.id.prp_lab5_1_Start);
         btnSendText.setOnClickListener(view -> {
             if (llListErrors.getChildCount() != 0) llListErrors.removeAllViews();
             Thread thread = new Thread(() -> {
@@ -90,17 +90,16 @@ public class FragmentPRPLab4_1 extends Fragment {
                     });
                     RedisAdapter ra = new RedisAdapter();
                     ra.connect();
-                } catch (Exception ex) {
-
+                }catch (WebSocketException conEx) {
                     fragmentActivity.runOnUiThread(() -> {
-                        if (!ex.getMessage().equals("java.net.SocketException: Socket is closed")) {
-                            updateTextViewUI(tvTextInfo2,
-                                    "Не удалось подключиться к серверу",
-                                    Color.RED,
-                                    View.VISIBLE);
-                        }
-                        Log.e(TAG, "onStart: " + ex.getMessage());
+                        updateTextViewUI(tvTextInfo2,
+                                "Не удалось подключиться к серверу",
+                                Color.RED,
+                                View.VISIBLE);
+                        Log.e(TAG, "onStart: " + conEx.getMessage());
                     });
+                } catch (Exception ex) {
+                    Log.e(TAG, "onStart: неизвестная ошибка");
                 }
             });
             thread.start();
@@ -168,23 +167,17 @@ public class FragmentPRPLab4_1 extends Fragment {
 
     private class RedisAdapter {
         private UUID uuid;
-        private JedisPubSub jedisPubSub;
-        private Jedis jedis;
+        private SocketPubSub socketPubSub;
+        private SocketAdapter socketAdapter;
         private Boolean timeoutFlag;
 
         private RedisAdapter() {
-            jedisPubSub = new JedisPubSub() {
+            socketPubSub = new SocketPubSub() {
                 @Override
-                public void onSubscribe(String channel, int subscribedChannels) {
-                    super.onSubscribe(channel, subscribedChannels);
+                public void onSubscribe(String channel) {
+                    super.onSubscribe(channel);
 
-                    try (Jedis jedis = new Jedis(HOST)) {
-                        jedis.connect();
-                        jedis.publish(CH_SEND, "UUID: " + uuid.toString());
-                    } catch (Exception ex) {
-                        jedisPubSub.unsubscribe();
-                        Log.e(TAG, "onSubscribe: " + ex.getMessage());
-                    }
+                    socketAdapter.publish(CH_SEND, "UUID: " + uuid.toString());
                 }
 
                 @Override
@@ -198,7 +191,7 @@ public class FragmentPRPLab4_1 extends Fragment {
                             updateTextViewUI(tvTextInfo2, "Нет доступных для обработки блоков",
                                     getResources().getColor(R.color.colorPrimary), View.VISIBLE);
                         });
-                        jedisPubSub.unsubscribe();
+                        socketPubSub.unsubscribe();
                         Log.d(TAG, "onMessage: нет доступных для обработки блоков");
                         return;
                     }
@@ -211,17 +204,16 @@ public class FragmentPRPLab4_1 extends Fragment {
                 }
 
                 @Override
-                public void onUnsubscribe(String channel, int subscribedChannels) {
-                    super.onUnsubscribe(channel, subscribedChannels);
-                    disconnect(jedis);
+                public void onUnsubscribe(String channel) {
+                    super.onUnsubscribe(channel);
+                    disconnect(socketAdapter);
                 }
             };
         }
 
-        private void connect() {
+        private void connect() throws IOException, WebSocketException {
             timeoutFlag = true;
-            jedis = new Jedis(HOST);
-            jedis.connect();
+            socketAdapter = new SocketAdapter(HOST);
             uuid = UUID.randomUUID();
             new Thread(() ->
                     new Timer().schedule(new TimerTask() {
@@ -232,11 +224,11 @@ public class FragmentPRPLab4_1 extends Fragment {
                                     updateTextViewUI(tvTextInfo2, "Нет ответа от мастера",
                                             Color.RED, View.VISIBLE);
                                 });
-                                jedisPubSub.unsubscribe();
+                                socketPubSub.unsubscribe();
                             }
                         }
-                    }, 3000)).start();
-            jedis.subscribe(jedisPubSub, CH_RECEIVE);
+                    }, 8000)).start();
+            socketAdapter.subscribe(socketPubSub, CH_RECEIVE);
         }
 
         private void startCalculate(String data) {
@@ -255,36 +247,26 @@ public class FragmentPRPLab4_1 extends Fragment {
                 for (int i = 0; i < COUNT_PROC; i++) {
                     // Вызываем в каждом потоке функцию размытия
                     String[] arrayWordsBlock = listArrayWords.get(i);
-                    taskList.add(new AsyncCalculate(arrayWordsBlock, i + 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
+                    taskList.add(new RedisAdapter.AsyncCalculate(arrayWordsBlock, i + 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
                 }
             } else {
-                taskList.add(new AsyncCalculate(arrayWords, 1).execute());
+                taskList.add(new RedisAdapter.AsyncCalculate(arrayWords, 1).execute());
             }
         }
 
         private void sendResult(String result) {
-            try (Jedis jedis = new Jedis(HOST)) {
-                jedis.publish(CH_SEND, "UUID: " + uuid.toString() + " Result: " + result);
-            } catch (Exception ex) {
-                Log.e(TAG, "sendResult: " + ex.getMessage());
-            }
+            socketAdapter.publish(CH_SEND, "UUID: " + uuid.toString() + " Result: " + result);
         }
 
         private void returnBlock() {
-            try (Jedis jedis = new Jedis(HOST)) {
-                jedis.connect();
-                jedis.publish(CH_SEND, "UUID: " + uuid.toString() + " blockReturn");
-            } catch (Exception ex) {
-                Log.e(TAG, "onCancelled: " + ex.getMessage());
-            }
-            jedisPubSub.unsubscribe();
+            socketAdapter.publish(CH_SEND, "UUID: " + uuid.toString() + " blockReturn");
+            socketPubSub.unsubscribe();
         }
 
-        private void disconnect(Jedis jedis) {
+        private void disconnect(SocketAdapter socketAdapter) {
             try {
-                if (jedis != null) {
-                    jedis.close();
-                    jedis.disconnect();
+                if (socketAdapter != null) {
+                    socketAdapter.close();
                 }
             } catch (Exception ex) {
                 Log.e(TAG, "disconnect: " + ex.getMessage());
@@ -306,7 +288,7 @@ public class FragmentPRPLab4_1 extends Fragment {
                 try {
                     for (String arrayWord : arrayWords) {
                         String word = arrayWord.toLowerCase();
-                        if(word.equals("")) continue;
+                        if (word.equals("")) continue;
                         multiSet.add(word);
                         onProgressUpdate();
                         if (isCancelled()) return false;
@@ -354,7 +336,7 @@ public class FragmentPRPLab4_1 extends Fragment {
                         List<FragmentPRPLab3_1.Word> wordList = convertMultiSetToListWord(multiSet);
                         Gson gson = new Gson();
                         sendResult(gson.toJson(wordList));
-                        jedisPubSub.unsubscribe();
+                        socketPubSub.unsubscribe();
                     }).start();
                     fragmentActivity.runOnUiThread(() -> {
                         updateTextViewUI(tvTextInfo2, "Успешное завершение всех расчетов!",

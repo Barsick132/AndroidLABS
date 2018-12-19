@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.lstu.kovalchuk.androidlabs.fragments.PRP.FragmentPRPLab1;
 import com.lstu.kovalchuk.androidlabs.fragments.PRP.FragmentPRPLab3;
 import com.lstu.kovalchuk.androidlabs.fragments.PRP.FragmentPRPLab4;
+import com.lstu.kovalchuk.androidlabs.fragments.PRP.FragmentPRPLab5;
 import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab1;
 import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab2;
 import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab3;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity
     private FragmentPRPLab1 fgtPRPLab1;
     private FragmentPRPLab3 fgtPRPLab3;
     private FragmentPRPLab4 fgtPRPLab4;
+    private FragmentPRPLab5 fgtPRPLab5;
     private FragmentRMPLab1 fgtRMPLab1;
     private FragmentRMPLab2 fgtRMPLab2;
     private FragmentRMPLab3 fgtRMPLab3;
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity
         fgtPRPLab1 = new FragmentPRPLab1();
         fgtPRPLab3 = new FragmentPRPLab3();
         fgtPRPLab4 = new FragmentPRPLab4();
+        fgtPRPLab5 = new FragmentPRPLab5();
         fgtRMPLab1 = new FragmentRMPLab1();
         fgtRMPLab2 = new FragmentRMPLab2();
         fgtRMPLab3 = new FragmentRMPLab3();
@@ -113,6 +116,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_prp_lab4:
                 ftrans.replace(R.id.container, fgtPRPLab4);
+                break;
+            case R.id.nav_prp_lab5:
+                ftrans.replace(R.id.container, fgtPRPLab5);
                 break;
         }
 
