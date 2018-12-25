@@ -21,6 +21,7 @@ import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab1;
 import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab2;
 import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab3;
 import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab45;
+import com.lstu.kovalchuk.androidlabs.fragments.RMP.FragmentRMPLab6;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity
     private FragmentRMPLab2 fgtRMPLab2;
     private FragmentRMPLab3 fgtRMPLab3;
     private FragmentRMPLab45 fgtRMPLab45;
+    private FragmentRMPLab6 fgtRMPLab6;
     private TextView tvText;
     public Context applicationContext;
     public Context getApplicationContextForFragment(){
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity
         fgtRMPLab2 = new FragmentRMPLab2();
         fgtRMPLab3 = new FragmentRMPLab3();
         fgtRMPLab45 = new FragmentRMPLab45();
+        fgtRMPLab6 = new FragmentRMPLab6();
         applicationContext = getApplicationContext();
     }
 
@@ -107,6 +110,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_rmp_lab45:
                 ftrans.replace(R.id.container, fgtRMPLab45);
+                break;
+            case R.id.nav_rmp_lab6:
+                ftrans.replace(R.id.container, fgtRMPLab6);
                 break;
             case R.id.nav_prp_lab1:
                 ftrans.replace(R.id.container, fgtPRPLab1);

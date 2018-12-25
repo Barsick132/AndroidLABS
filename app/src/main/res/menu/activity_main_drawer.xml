@@ -21,6 +21,10 @@
                 android:id="@+id/nav_rmp_lab45"
                 android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
                 android:title="@string/Lab45" />
+            <item
+                android:id="@+id/nav_rmp_lab6"
+                android:icon="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:title="@string/Lab6" />
         </menu>
     </item>
     <item android:title="@string/PRP">
